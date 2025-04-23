@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repo demonstrates a SQL Injection vulnerability found on a Members page, showing how attackers can exploit weak input validation to extract sensitive data.
+A SQL Injection vulnerability found on a Members page, showing how attackers can exploit weak input validation to extract sensitive data.
 
 ---
 
