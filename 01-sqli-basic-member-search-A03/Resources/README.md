@@ -2,7 +2,7 @@
 
 ## Overview
 
-A SQL Injection vulnerability found on a Members page, showing how attackers can exploit weak input validation to extract sensitive data.
+A SQL Injection vulnerability found on the Members page allows attackers to exploit weak input validation and extract sensitive data.
 
 ---
 
@@ -26,8 +26,13 @@ A SQL Injection vulnerability found on a Members page, showing how attackers can
 
 ### 5. Crack the Flag
 - Extract hash: `5ff9d0165b4f92b14994e5c685cdce28`
-- MD5 decrypt: `FortyTwo` → lowercase → `fortytwo`
-- SHA-256: `10a16d834f9b1e4068b25c4c46fe0284e99e44dceaf08098fc83925ba6310ff5` (the flag)
+- MD5 decrypt: `FortyTwo` (use [dcode.fr](https://www.dcode.fr/md5-hash) or [crackstation.net](https://crackstation.net) to decode MD5)
+- Lowercase: `fortytwo`
+- Get SHA-256:
+    ```bash
+    echo -n 'fortytwo' | sha256sum
+    ```
+- Flag: `10a16d834f9b1e4068b25c4c46fe0284e99e44dceaf08098fc83925ba6310ff5`
 
 ---
 
@@ -55,4 +60,4 @@ A SQL Injection vulnerability found on a Members page, showing how attackers can
 
 ---
 
-> Weak input validation can lead to full data exposure. Use secure coding practices to protect your applications.
+> Weak input validation can lead to full data exposure. Always use secure coding practices to protect your applications.
