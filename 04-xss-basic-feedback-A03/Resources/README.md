@@ -13,7 +13,7 @@ A stored XSS vulnerability exists on the "Leave a Feedback" page. The form fails
 - The form's submit button uses:  
   `<input name="btnSign" type="Submit" value="Sign Guestbook" onclick="return checkForm();">`  
   but the `checkForm` function is missing, so no client-side validation is performed.
-- Entering keywords like `script`, `a`, or `p` (without `<` or `>`) in the Name or Message field stores them as-is.
+- Entering keywords like `script`, `alert` (without `<` or `>`) in the Name or Message field stores them as-is.
 - When these keywords appear on the page, the application reveals the flag.
 
 **Flag:**  
