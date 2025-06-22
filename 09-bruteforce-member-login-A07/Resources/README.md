@@ -24,7 +24,7 @@ The login form at `/?page=signin` is vulnerable to brute force attacks, allowing
 
 - Download a password list from GitHub:
   ```bash
-  wget https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt -O pwdlist.txt
+  wget https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Common-Credentials/xato-net-10-million-passwords-100.txt -O pwdlist.txt
   ```
 - Use this brute force loop:
   ```bash
