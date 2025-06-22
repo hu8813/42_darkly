@@ -60,8 +60,9 @@ Sensitive info was hidden in deeply nested folders under `/.hidden/`. No real se
 
 - Download everything and search for the flag:
   ```bash
-  wget -r -np http://<IP_ADDRESS>/.hidden/
-  grep -r "flag" .hidden/
+        wget -r -np -e robots=off http://<IP_ADDRESS>/.hidden/
+
+        grep -r "flag" .hidden/
   ```
 
 ---
