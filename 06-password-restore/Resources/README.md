@@ -13,13 +13,9 @@ In the password recovery form (`/?page=recover`), a hidden field sets the admin�
    <input type="hidden" name="mail" value="webmaster@borntosec.com">
    ```
 2. **Exploit:**  
-   - Change the value to your own email using DevTools, or  
-   - Send a direct POST request:
-     ```bash
-     curl -X POST "/?page=recover" --data "mail=attacker@some-anonym-email.com&Submit=Submit"
-     ```
+   - Change the value to your own email using DevTools and submit Form
 3. **Result:**  
-   The app sends the reset link (and flag) to the attacker’s email.
+   The app shows the Flag (reset link (and password) to the attacker’s email).
 
 ---
 
