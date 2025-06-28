@@ -9,8 +9,8 @@ A SQL Injection vulnerability found on the Members page allows attackers to expl
 ## Discovery & Exploitation
 
 ### 1. Confirm the Vulnerability
-- Input in search: `1' OR TRUE`
-- Result: With single quote did not work.
+- i.e. input in search: `1' OR TRUE`
+- Result: With single quote did not work. After trying different SQL Payloads
 
 - Input in search: `1 OR TRUE`
 - Result: Returns all members, confirming SQL injection.
