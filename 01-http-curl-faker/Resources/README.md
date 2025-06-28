@@ -11,7 +11,7 @@ On the copyright page:
 ```
 http://<IP_ADDRESS>/?page=b7e44c7a40c5f80139f0a50f3650fb2bd8d00b0d24667c4c2ca32c88e13b758f
 ```
-HTML comments in the source say:
+HTML comments in the source Code say:
 - Use Referer: `https://www.nsa.gov/`
 - Use User-Agent: `ft_bornToSec`
 

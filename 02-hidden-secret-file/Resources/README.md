@@ -7,7 +7,7 @@ Sensitive info was hidden in deeply nested folders under `/.hidden/`. No real se
 
 ## How It Works
 
-1. **robots.txt** gave clues:
+1. **http://<IP_ADDRESS>/robots.txt** gave clues:
    ```
    Disallow: /whatever
    Disallow: /.hidden
@@ -23,9 +23,10 @@ Sensitive info was hidden in deeply nested folders under `/.hidden/`. No real se
 
 - Download everything and search for the flag:
   ```bash
+        mkdir -p tmp && cd tmp
         wget -r -np -e robots=off http://<IP_ADDRESS>/.hidden/
 
-        grep -r "flag" .hidden/
+        grep -r "flag" .
   ```
 
 ---
