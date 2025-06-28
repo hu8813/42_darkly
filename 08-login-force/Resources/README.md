@@ -22,7 +22,14 @@ The login form at `/?page=signin` is vulnerable to brute force attacks, allowing
 
 ### ** Bash Script with Password List**
 
-- Download a password list from GitHub:
+- Create your own Password list or Download a password list from GitHub:
+  ```
+  echo -e "admin\nadmin123\n123456\npassword\nshadow\n12345678\nroot\npassw0rd\n1234" > pwdlist.txt
+
+  ```
+
+  or 
+
   ```bash
   wget https://raw.githubusercontent.com/danielmiessler/SecLists/refs/heads/master/Passwords/Common-Credentials/xato-net-10-million-passwords-100.txt -O pwdlist.txt
   ```
